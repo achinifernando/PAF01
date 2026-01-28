@@ -1,0 +1,106 @@
+--- CREATING TABLES---
+
+CREATE TABLE Department(
+DeptNo VARCHAR(20) PRIMARY KEY,
+DeptName CHAR(20),
+DeptLocation VARCHAR(20)
+
+
+);
+
+
+CREATE TABLE Employee(
+EmpNo VARCHAR(20) PRIMARY KEY,
+fname CHAR(20), 
+lname CHAR(20),
+address VARCHAR(40),
+salary FLOAT,
+DeptNo VARCHAR(20)
+
+
+CONSTRAINT Emp_FK FOREIGN KEY(DeptNo) REFERENCES Department(DeptNo)
+);
+
+
+CREATE TABLE Project (
+ProjNo CHAR(5) PRIMARY KEY,
+Project_Name VARCHAR(20) , 
+DeptNo VARCHAR(20) 
+
+CONSTRAINT Proj_FK FOREIGN KEY(DeptNo) REFERENCES Department(DeptNo)
+);
+
+CREATE TABLE Works_On(
+EmpNo VARCHAR(20), 
+ProjNo CHAR(5),
+DateWorked DATE,
+Hours INT
+
+CONSTRAINT works_on_FK1 FOREIGN KEY(EmpNo) REFERENCES Employee(EmpNo),
+CONSTRAINT works_on_FK2 FOREIGN KEY(ProjNo) REFERENCES Project(ProjNo)
+);
+
+
+--- INSERTING VALUES---
+INSERT INTO Department(DeptNo,DeptName,DeptLocation) VALUES ('001', 'Accounts', 'Bangalor');
+INSERT INTO Department(DeptNo,DeptName,DeptLocation) VALUES ('002', 'IT', 'Mumbai');
+INSERT INTO Department(DeptNo,DeptName,DeptLocation) VALUES ('003','ECE', 'Mumbai');
+INSERT INTO Department(DeptNo,DeptName,DeptLocation) VALUES ('004', 'ISE', 'Mumbai');
+INSERT INTO Department(DeptNo,DeptName,DeptLocation) VALUES ('005', 'CSE', 'Delhi');
+
+
+INSERT INTO Employee(EmpNo,fname, lname,address,salary,DeptNo) VALUES ('Emp01','John', 'Scott', 'Mysore', 45000, '003');
+INSERT INTO Employee(EmpNo,fname, lname,address,salary,DeptNo) VALUES ('Emp02','James', 'Smith', 'Bangalore', 50000, '005');
+INSERT INTO Employee(EmpNo,fname, lname,address,salary,DeptNo) VALUES ('Emp03','Edward', 'Hedge', 'Bangalore', 65000, '002');
+INSERT INTO Employee(EmpNo,fname, lname,address,salary,DeptNo) VALUES ('Emp04','Santhosh', 'Kumar', 'Delhi', 80000, '002');
+INSERT INTO Employee(EmpNo,fname, lname,address,salary,DeptNo) VALUES ('Emp05','Veena', 'M', 'Mumbai', 45000, '004');
+
+INSERT INTO Project (ProjNo,Project_Name, DeptNo) VALUES ('P01', 'IOT', '005');
+INSERT INTO Project (ProjNo,Project_Name, DeptNo) VALUES ('P02', 'Cloud', '005');
+INSERT INTO Project (ProjNo,Project_Name, DeptNo) VALUES ('P03', 'BankMgmt', '004');
+INSERT INTO Project (ProjNo,Project_Name, DeptNo) VALUES ('P04', 'Sensors', '003');
+INSERT INTO Project (ProjNo,Project_Name, DeptNo)VALUES ('P05', 'BigData', '002');
+
+
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp02', 'P03', '02-OCT-2018',4);
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp01', 'P02', '22-JAN-2014',13);
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp02', 'P02', '19-JUN-2020',15);
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp02', 'P01', '11-JUN-2020',15);
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp01', 'P04', '08-FEB-2009',6);
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp02', 'P01', '18-OCT-2018',18);
+INSERT INTO Works_On(EmpNo, ProjNo,DateWorked,Hours)VALUES ('Emp01', 'P05', '02-SEP-2011',7);
+
+select * from Works_On
+
+--a)
+---Retrieve the name and address of all employees who work for the ‘IT’ department---
+
+SELECT e.fname,e.lname,e.address 
+FROM Employee e, Department d 
+WHERE e.DeptNo=d.DeptNo AND deptName= 'IT';
+
+---b)
+---Retrieve the salary of every employee and all distinct salary values---
+SELECT DISTINCT salary
+FROM Employee
+
+---c)
+---Retrieve the names of all employees in department 005 who work more than 10 hours per week on the P01 project---
+
+SELECT e.fname,e.lname 
+FROM Employee e,Project p,Works_On w
+WHERE w.EmpNo=e.EmpNo AND w.ProjNo=p.ProjNo AND e.DeptNo='005' AND p.ProjNo='P01' AND w.hours>10;
+
+---d)
+---Retrieve a list of employees and the projects they are working on, ordered by department and, within each department, ordered alphabetically by last name, then first name.---
+
+SELECT e.fname,e.lname,p.Project_Name,d.DeptNo
+FROM Employee e,Project p,Works_On w,Department d
+WHERE e.EmpNo=w.EmpNo AND w.ProjNo=p.ProjNo 
+ORDER BY d.DeptNo,e.lname ,e.fname 
+
+---e)
+---Show the resulting salaries of every employee working on the ‘IOT’ project is given a 10 percent raise---
+SELECT e.fname,e.lname,e.salary* 1.1 AS NewSalary
+FROM Employee e,Project p,Works_On w
+WHERE w.EmpNo=e.EmpNo AND  w.ProjNo= p.ProjNo AND  p.Project_Name='IOT'
